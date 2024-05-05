@@ -31,26 +31,35 @@ def render_dot(dot_input, container_id=None, vizjs_version="2.1.2"):
 
     html_code = f"""
     <div id='{container_id}'></div> <!-- Container to display the graph -->
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/viz.js/{vizjs_version}/viz.js'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/viz.js/{vizjs_version}/full.render.js'></script>
     <script>
+    function loadScript(url, callback) {{
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = url;
+        script.onreadystatechange = callback;
+        script.onload = callback;
+        document.head.appendChild(script);
+    }}
+
     function renderGraph(encodedDot) {{
-        var viz = new Viz();
-        // Decode the base64 string to get the DOT format
-        var dotString = atob(encodedDot);
-        
-        viz.renderSVGElement(dotString)
-            .then(function(element) {{
-                document.getElementById('{container_id}').appendChild(element);
-            }})
-            .catch(error => {{
-                console.error('Error rendering graph:', error);
+        loadScript('https://cdnjs.cloudflare.com/ajax/libs/viz.js/{vizjs_version}/viz.js', function() {{
+            loadScript('https://cdnjs.cloudflare.com/ajax/libs/viz.js/{vizjs_version}/full.render.js', function() {{
+                var viz = new Viz();
+                var dotString = atob(encodedDot);
+                
+                viz.renderSVGElement(dotString)
+                    .then(function(element) {{
+                        document.getElementById('{container_id}').appendChild(element);
+                    }})
+                    .catch(error => {{
+                        console.error('Error rendering graph:', error);
+                    }});
             }});
+        }});
     }}
 
     // Execute the rendering function with the base64-encoded DOT string
     renderGraph("{dot_string_base64}");
     </script>
     """
-
     display(HTML(html_code))
