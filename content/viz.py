@@ -1,6 +1,11 @@
-def render_dot(dot_file_path):
+def render_dot(dot_file_path, container_id=None):
     import base64
+    import uuid
     from IPython.display import display, HTML
+
+    # Generate a random container ID if none is provided
+    if container_id is None:
+        container_id = f"container-{uuid.uuid4()}"
 
     # Read the DOT file
     try:
@@ -15,7 +20,7 @@ def render_dot(dot_file_path):
 
     # Create the HTML code to display the graph
     html_code = f"""
-    <div id='graph-container'></div> <!-- Container to display the graph -->
+    <div id='{container_id}'></div> <!-- Container to display the graph -->
     <script src='https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js'></script>
     <script>
@@ -26,7 +31,7 @@ def render_dot(dot_file_path):
         
         viz.renderSVGElement(dotString)
             .then(function(element) {{
-                document.getElementById('graph-container').appendChild(element);
+                document.getElementById('{container_id}').appendChild(element);
             }})
             .catch(error => {{
                 console.error('Error rendering graph:', error);
@@ -39,4 +44,3 @@ def render_dot(dot_file_path):
     """
 
     display(HTML(html_code))
-
